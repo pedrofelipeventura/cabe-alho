@@ -51,21 +51,34 @@ void liberarImagem(PGM *pgm) {
     free(pgm->imagem);
 }
 
-void salvarImagem(const PGM *pgm, const int *clusters, int k, const char *pasta_destino, const char *nome_imagem) {
-    char caminho_saida[256];
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Função para salvar a imagem em formato PGM
+void salvarImagem(const PGM *pgm, int k, const char *pasta_destino, const char *nome_imagem) {
+    char caminho_saida[256]; // Buffer para armazenar o caminho completo do arquivo de saída
+
+    // Formata o caminho de saída com a pasta e o nome da imagem
     snprintf(caminho_saida, sizeof(caminho_saida), "%s/%s_clustered.pgm", pasta_destino, nome_imagem);
     
+    // Abre o arquivo para escrita no formato binário
     FILE *arquivo = fopen(caminho_saida, "wb");
     if (!arquivo) {
-        printf("Erro ao abrir o arquivo para escrita: %s\n", caminho_saida);  // Mensagem de erro caso o arquivo não seja aberto
+        // Se o arquivo não puder ser aberto, exibe uma mensagem de erro e encerra a função
+        printf("Erro ao abrir o arquivo para escrita: %s\n", caminho_saida);
         return;
     }
     
+    // Escreve o cabeçalho do arquivo PGM no formato "P5"
     fprintf(arquivo, "P5\n%d %d\n%d\n", pgm->largura, pgm->altura, pgm->max_intensidade);
     
+    // Itera por todos os pixels da imagem
     for (int i = 0; i < pgm->largura * pgm->altura; i++) {
-        fputc(clusters[i] * (pgm->max_intensidade / k), arquivo);
+        // Converte o cluster do pixel para um valor de intensidade e grava no arquivo
+        fputc(pgm->imagem[i] * (pgm->max_intensidade / k), arquivo);
     }
     
+    // Fecha o arquivo após escrever todos os dados
     fclose(arquivo);
 }
